@@ -151,21 +151,70 @@ header {
        </div>
     </header>
     
-    <!-- $100 CREDIT TEASER BANNER -->
-    <div class="bg-[#0f172a] from-orange-500 py-4 px-6">
-      <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-          <div class="flex items-center gap-4">
-              <span class="text-white text-3xl font-black italic leading-none">🎉</span>
-              <div>
-                  <p class="text-orange-500 font-black uppercase text-m tracking-widest leading-tight">Founding Member Offer</p>
-                  <p class="text-white text-m leading-snug">Join now and get <strong class="text-orange-300">$100 credit toward your first booking</strong> — your first job is virtually on us.</p>
-              </div>
-          </div>
-          <a href="#joining-credit" class="bg-orange-500 flex-shrink-0 text-white font-black uppercase text-sm tracking-widest px-6 py-3 rounded-xl hover:bg-orange-500 transition-all shadow-md whitespace-nowrap">
-              Learn More ↓
-          </a>
+<!-- $100 CREDIT TEASER BANNER -->
+<div class="bg-[#0f172a] py-4 px-6">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+    <div class="flex items-center gap-4">
+      <span class="text-white text-3xl font-black italic leading-none">🎉</span>
+      <div>
+        <p class="text-orange-500 font-black uppercase text-sm tracking-widest leading-tight">
+          Founding Member Offer — Wave 1 of 4
+        </p>
+        <p class="text-white text-sm leading-snug">
+          Join now and get <strong class="text-orange-300">$100 credit toward your first booking</strong> — your first job is virtually on us.
+          <span id="teaser-spots" class="text-orange-400 font-black ml-1">25 spots remaining.</span>
+          <span class="text-slate-400 text-xs ml-1">Next wave drops to $90.</span>
+        </p>
       </div>
+    </div>
+    <div class="flex flex-col items-center gap-1 flex-shrink-0">
+      <a href="#joining-credit" class="bg-orange-500 text-white font-black uppercase text-sm tracking-widest px-6 py-3 rounded-xl hover:bg-orange-400 transition-all shadow-md whitespace-nowrap">
+        Claim Your Spot ↓
+      </a>
+      <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Next wave: $90 credit</p>
+    </div>
   </div>
+</div>
+
+<script>
+// ── Sync teaser banner spot count with Supabase ──────────────
+(async () => {
+  try {
+    const sb = initSupabase();
+    if (!sb) return;
+
+    const WAVE1_TOTAL = 25;
+
+    // Count approved contractors who joined during wave 1
+    // Wave 1 = credit_balance of 100 at time of joining
+    const { count, error } = await sb
+      .from('contractors')
+      .select('*', { count: 'exact', head: true })
+      .eq('approved', true)
+      .gte('credit_balance', 100);
+
+    if (error) return;
+
+    const spotsLeft = Math.max(WAVE1_TOTAL - (count || 0), 0);
+    const el = document.getElementById('teaser-spots');
+    if (!el) return;
+
+    if (spotsLeft === 0) {
+      el.textContent = 'Wave 1 full — $90 wave now open.';
+      el.classList.remove('text-orange-400');
+      el.classList.add('text-yellow-400');
+    } else if (spotsLeft <= 5) {
+      el.textContent = `⚡ Only ${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} remaining!`;
+      el.classList.remove('text-orange-400');
+      el.classList.add('text-red-400');
+    } else {
+      el.textContent = `${spotsLeft} spots remaining.`;
+    }
+  } catch (err) {
+    console.warn('Spot counter failed silently:', err);
+  }
+})();
+</script>
 
     <!-- STATS -->
     <section class="bg-white border-b border-slate-200 py-12 px-6">
