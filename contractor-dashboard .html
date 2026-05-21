@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booked by Boyle | Contractor Portal</title>
+    <link rel="icon" type="image/png" href="https://res-console.cloudinary.com/dkmlcoqjn/thumbnails/transform/v1/image/upload/Y19maWxsLGhfMjAwLHdfMjAw/v1/VW50aXRsZWRfOF90bnFqcnQ=/template_primary">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }
+        .brand-orange { color: #ff6b35; }
+        .brand-orange-bg { background-color: #ff6b35; }
+        .sidebar-item { transition: all 0.2s; cursor: pointer; }
+        .sidebar-item:hover { background: rgba(255,107,53,0.1); }
+        .sidebar-item.active { background: rgba(255,107,53,0.15); border-left: 3px solid #ff6b35; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .job-card { transition: all 0.3s; }
+        .job-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .badge-high { background: rgba(255,107,53,0.2); color: #ff6b35; border: 1px solid rgba(255,107,53,0.3); }
+        .badge-mid { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-low { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+        .stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+        .alert-red { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+        .alert-yellow { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.3); }
+    </style>
+</head>
+<body>
+
+<div class="flex min-h-screen">
+
+    <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+    <aside class="w-64 bg-[#0a0f1a] border-r border-white/5 flex flex-col fixed h-full z-10">
+        <!-- Logo -->
+        <div class="p-5 border-b border-white/5">
+            <a href="index.html">
+                <img src="https://res.cloudinary.com/dkmlcoqjn/image/upload/Untitled_3_uw5hxn.png" alt="Booked by Boyle" class="h-10 w-auto">
+            </a>
+            <p class="text-slate-500 text-xs mt-2 font-bold uppercase tracking-widest">Contractor Portal</p>
+        </div>
+
+        <!-- User info -->
+        <div class="p-4 border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full brand-orange-bg flex items-center justify-center font-black text-white text-sm" id="avatar-initials">--</div>
+                <div>
+                    <p class="text-white font-bold text-sm" id="sidebar-name">Loading...</p>
+                    <p class="text-slate-500 text-xs" id="sidebar-trade">--</p>
+                </div>
+            </div>
+            <!-- Credit balance pill -->
+            <div class="mt-3 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-green-400 text-xs font-bold uppercase tracking-wide">Credit Balance</span>
+                <span class="text-green-400 font-black text-sm" id="sidebar-credits">$0</span>
+            </div>
+        </div>
+
+        <!-- Nav -->
+        <nav class="flex-1 p-3 space-y-1">
+            <div class="sidebar-item active rounded-xl px-4 py-3 flex items-center gap-3" onclick="switchTab('dashboard')">
+                <span class="text-lg">📊</span><span class="text-sm font-bold uppercase tracking-wide">Dashboard</span>
+            </div>
+            <div class="sidebar-item rounded-xl px-4 py-3 flex items-center gap-3" onclick="switchTab('jobs')">
+                <span class="text-lg">🏗️</span><span class="text-sm font-bold uppercase tracking-wide">Job Board</span>
+                <span id="jobs-badge" class="ml-auto bg-orange-500 text-white text-xs font-black px-2 py-0.5 rounded-full hidden">0</span>
+            </div>
+            <div class="sidebar-item rounded-xl px-4 py-3 flex items-center gap-3" onclick="switchTab('applications')">
+                <span class="text-lg">📋</span><span class="text-sm font-bold uppercase tracking-wide">My Applications</span>
+            </div>
+            <div class="sidebar-item rounded-xl px-4 py-3 flex items-center gap-3" onclick="switchTab('credits')">
+                <span class="text-lg">💰</span><span class="text-sm font-bold uppercase tracking-wide">Credits & Referrals</span>
+            </div>
+            <div class="sidebar-item rounded-xl px-4 py-3 flex items-center gap-3" onclick="switchTab('perks')">
+                <span class="text-lg">⭐</span><span class="text-sm font-bold uppercase tracking-wide">My Perks</span>
+            </div>
+            <div class="sidebar-item rounded-xl px-4 py-3 flex items-center gap-3" onclick="switchTab('profile')">
+                <span class="text-lg">👤</span><span class="text-sm font-bold uppercase tracking-wide">My Profile</span>
+            </div>
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-4 border-t border-white/5">
+            <button onclick="handleLogout()" class="w-full text-slate-500 hover:text-red-400 text-xs font-bold uppercase tracking-wide transition-colors text-left px-2">
+                ← Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ────────────────────────────────────── -->
+    <main class="ml-64 flex-1 p-8">
+
+        <!-- Not approved banner -->
+        <div id="pending-banner" class="hidden mb-6 alert-yellow rounded-2xl px-6 py-4 flex items-center gap-4">
+            <span class="text-2xl">⏳</span>
+            <div>
+                <p class="text-yellow-300 font-black uppercase text-sm">Verification Pending</p>
+                <p class="text-yellow-200 text-xs mt-0.5">We're verifying your license and insurance. Usually takes 24–48 hours. You'll get an email when you're approved and can start claiming jobs.</p>
+            </div>
+        </div>
+
+        <!-- License expiry alert -->
+        <div id="license-alert" class="hidden mb-6 alert-red rounded-2xl px-6 py-4 flex items-center gap-4">
+            <span class="text-2xl">⚠️</span>
+            <div id="license-alert-text"></div>
+        </div>
+
+        <!-- ── DASHBOARD TAB ── -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic uppercase">Good to see you, <span class="brand-orange" id="welcome-name">--</span></h1>
+                <p class="text-slate-400 mt-1">Here's what's happening in your account.</p>
+            </div>
+
+            <!-- Stats row -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card rounded-2xl p-5">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Open Jobs</p>
+                    <p class="text-3xl font-black brand-orange" id="stat-open-jobs">--</p>
+                    <p class="text-slate-500 text-xs mt-1">Available on the board</p>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">My Applications</p>
+                    <p class="text-3xl font-black text-white" id="stat-applications">--</p>
+                    <p class="text-slate-500 text-xs mt-1">Pending & approved</p>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Credit Balance</p>
+                    <p class="text-3xl font-black text-green-400" id="stat-credits">$0</p>
+                    <p class="text-slate-500 text-xs mt-1">Available to redeem</p>
+                </div>
+                <div class="stat-card rounded-2xl p-5">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Referrals</p>
+                    <p class="text-3xl font-black text-white" id="stat-referrals">--</p>
+                    <p class="text-slate-500 text-xs mt-1">Paid jobs from your code</p>
+                </div>
+            </div>
+
+            <!-- Recent jobs preview -->
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-xl font-black uppercase italic">Recent Jobs on the Board</h2>
+                <button onclick="switchTab('jobs')" class="text-orange-400 text-sm font-bold hover:underline">View All →</button>
+            </div>
+            <div id="dashboard-jobs-preview" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="stat-card rounded-2xl p-6 text-center text-slate-500">Loading jobs...</div>
+            </div>
+        </div>
+
+        <!-- ── JOB BOARD TAB ── -->
+        <div id="tab-jobs" class="tab-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic uppercase">Job <span class="brand-orange">Board</span></h1>
+                <p class="text-slate-400 mt-1">Apply for jobs that match your trade. First approved gets the slot.</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex gap-3 mb-6 flex-wrap">
+                <select id="filter-type" onchange="loadJobs()" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
+                    <option value="">All Property Types</option>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                </select>
+                <button onclick="loadJobs()" class="brand-orange-bg px-5 py-2.5 rounded-xl text-sm font-black uppercase hover:bg-[#e85a20] transition-all">Refresh</button>
+            </div>
+
+            <div id="jobs-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+                <div class="stat-card rounded-2xl p-6 text-center text-slate-500">Loading jobs...</div>
+            </div>
+        </div>
+
+        <!-- ── APPLICATIONS TAB ── -->
+        <div id="tab-applications" class="tab-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic uppercase">My <span class="brand-orange">Applications</span></h1>
+                <p class="text-slate-400 mt-1">Track the status of every job you've applied for.</p>
+            </div>
+            <div id="applications-list" class="space-y-4">
+                <div class="stat-card rounded-2xl p-6 text-center text-slate-500">Loading applications...</div>
+            </div>
+        </div>
+
+        <!-- ── CREDITS TAB ── -->
+        <div id="tab-credits" class="tab-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic uppercase">Credits & <span class="brand-orange">Referrals</span></h1>
+            </div>
+
+            <!-- Credit balance card -->
+            <div class="bg-gradient-to-br from-[#0f172a] to-[#1e293b] border border-orange-500/30 rounded-3xl p-8 mb-8 flex items-center justify-between flex-wrap gap-6">
+                <div>
+                    <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mb-1">Current Credit Balance</p>
+                    <p class="text-6xl font-black text-green-400" id="credits-balance">$0</p>
+                    <p class="text-slate-500 text-sm mt-2">Stackable. Redeemable anytime when you claim a job.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Your Referral Code</p>
+                    <div class="bg-orange-500/10 border border-orange-500/30 rounded-xl px-6 py-4">
+                        <p class="text-orange-400 font-black text-2xl tracking-widest" id="referral-code-display">------</p>
+                    </div>
+                    <button onclick="copyReferralCode()" class="mt-3 text-xs text-slate-400 hover:text-orange-400 font-bold uppercase tracking-wide transition-colors">Copy Code →</button>
+                </div>
+            </div>
+
+            <!-- How it works -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="stat-card rounded-2xl p-5 text-center">
+                    <p class="text-3xl mb-2">1️⃣</p>
+                    <p class="font-black text-sm uppercase text-white mb-1">Share Your Code</p>
+                    <p class="text-slate-500 text-xs">Give your code to any property owner who needs work done.</p>
+                </div>
+                <div class="stat-card rounded-2xl p-5 text-center">
+                    <p class="text-3xl mb-2">2️⃣</p>
+                    <p class="font-black text-sm uppercase text-white mb-1">They Use Our Service</p>
+                    <p class="text-slate-500 text-xs">They sign up, submit a job request, and hire a contractor through us.</p>
+                </div>
+                <div class="stat-card rounded-2xl p-5 text-center">
+                    <p class="text-3xl mb-2">3️⃣</p>
+                    <p class="font-black text-sm uppercase text-white mb-1">You Earn Credit</p>
+                    <p class="text-slate-500 text-xs">Credit lands in your balance automatically. Stackable, no limit.</p>
+                </div>
+            </div>
+
+            <!-- Transaction history -->
+            <h2 class="text-xl font-black uppercase italic mb-4">Credit History</h2>
+            <div id="credit-history" class="space-y-3">
+                <div class="stat-card rounded-2xl p-5 text-center text-slate-500 text-sm">No credit transactions yet.</div>
+            </div>
+        </div>
+
+        <!-- ── PERKS TAB ── -->
+        <div id="tab-perks" class="tab-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic uppercase">Your <span class="brand-orange">Perks</span></h1>
+                <p class="text-slate-400 mt-1">Everything included in your membership — at no extra cost.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="stat-card rounded-2xl p-7 border border-white/5 hover:border-orange-500/30 transition-all">
+                    <div class="text-3xl mb-4">🔍</div>
+                    <h4 class="font-black text-base uppercase italic mb-2">Visibility Report</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">See exactly how property managers see you — Google rating, license verifiability, insurance status, online presence.</p>
+                    <span class="text-xs bg-green-500/10 border border-green-500/20 text-green-400 font-bold uppercase px-3 py-1 rounded-full">Included Free</span>
+                </div>
+
+                <div class="stat-card rounded-2xl p-7 border border-white/5 hover:border-orange-500/30 transition-all">
+                    <div class="text-3xl mb-4">📅</div>
+                    <h4 class="font-black text-base uppercase italic mb-2">License & Insurance Tracking</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">We monitor your expiration dates and alert you 60 days before anything lapses — with the renewal link ready.</p>
+                    <div id="expiry-status" class="text-xs font-bold uppercase px-3 py-1 rounded-full inline-block">Loading...</div>
+                </div>
+
+                <div class="stat-card rounded-2xl p-7 border border-white/5 hover:border-orange-500/30 transition-all">
+                    <div class="text-3xl mb-4">⭐</div>
+                    <h4 class="font-black text-base uppercase italic mb-2">Review Generation</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">A simple proven template for asking past clients for Google reviews — and exactly how to use it.</p>
+                    <a href="review-guide.html" class="text-xs text-orange-400 font-bold uppercase hover:underline">View Guide →</a>
+                </div>
+
+                <div class="stat-card rounded-2xl p-7 border border-white/5 hover:border-orange-500/30 transition-all">
+                    <div class="text-3xl mb-4">📍</div>
+                    <h4 class="font-black text-base uppercase italic mb-2">Google Business Setup</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">No Google Business Profile? We'll set it up or optimize your existing one — completely free.</p>
+                    <a href="mailto:Declan@BookedByBoyle.com?subject=Google Business Setup Request" class="text-xs text-orange-400 font-bold uppercase hover:underline">Request Setup →</a>
+                </div>
+
+                <div class="stat-card rounded-2xl p-7 border border-white/5 hover:border-orange-500/30 transition-all">
+                    <div class="text-3xl mb-4">🌐</div>
+                    <h4 class="font-black text-base uppercase italic mb-2">One-Page Website</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">No website? We'll build a clean professional one-page site covering your trade, area, contact, and reviews.</p>
+                    <a href="mailto:Declan@BookedByBoyle.com?subject=Website Request" class="text-xs text-orange-400 font-bold uppercase hover:underline">Request Website →</a>
+                </div>
+
+                <div class="stat-card rounded-2xl p-7 border border-white/5 hover:border-orange-500/30 transition-all">
+                    <div class="text-3xl mb-4">🔗</div>
+                    <h4 class="font-black text-base uppercase italic mb-2">Contractor Network</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Get referred work from other trades in the network. A landscaper gets an electrical call — they send it to you.</p>
+                    <span class="text-xs bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold uppercase px-3 py-1 rounded-full">Coming Soon</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── PROFILE TAB ── -->
+        <div id="tab-profile" class="tab-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic uppercase">My <span class="brand-orange">Profile</span></h1>
+                <p class="text-slate-400 mt-1">Your information on file. Contact us to update license or insurance details.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="stat-card rounded-2xl p-6 space-y-4">
+                    <h3 class="font-black uppercase text-sm text-slate-400 tracking-widest border-b border-white/5 pb-3">Personal Info</h3>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Name</span><span class="text-white font-semibold text-sm" id="profile-name">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Email</span><span class="text-white font-semibold text-sm" id="profile-email">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Phone</span><span class="text-white font-semibold text-sm" id="profile-phone">--</span></div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 space-y-4">
+                    <h3 class="font-black uppercase text-sm text-slate-400 tracking-widest border-b border-white/5 pb-3">Business Info</h3>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Business</span><span class="text-white font-semibold text-sm" id="profile-business">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Trade(s)</span><span class="text-white font-semibold text-sm" id="profile-trade">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Service Area</span><span class="text-white font-semibold text-sm" id="profile-area">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Market</span><span class="text-white font-semibold text-sm" id="profile-market">--</span></div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 space-y-4">
+                    <h3 class="font-black uppercase text-sm text-slate-400 tracking-widest border-b border-white/5 pb-3">License & Insurance</h3>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">License #</span><span class="text-white font-semibold text-sm" id="profile-license">--</span></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">License Expires</span>
+                        <span class="font-semibold text-sm" id="profile-license-expiry">--</span>
+                    </div>
+                    <div class="flex justify-between"><span class="text-slate-400 text-sm">Insurance</span><span class="text-white font-semibold text-sm" id="profile-insurance">--</span></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">Insurance Expires</span>
+                        <span class="font-semibold text-sm" id="profile-insurance-expiry">--</span>
+                    </div>
+                </div>
+                <div class="stat-card rounded-2xl p-6 space-y-4">
+                    <h3 class="font-black uppercase text-sm text-slate-400 tracking-widest border-b border-white/5 pb-3">Account Status</h3>
+                    <div class="flex justify-between items-center"><span class="text-slate-400 text-sm">Verified</span><span id="profile-verified" class="text-sm font-bold">--</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-400 text-sm">Approved</span><span id="profile-approved" class="text-sm font-bold">--</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-400 text-sm">Referral Code</span><span class="text-orange-400 font-black tracking-widest" id="profile-refcode">--</span></div>
+                    <div class="mt-4 pt-4 border-t border-white/5">
+                        <a href="mailto:Declan@BookedByBoyle.com?subject=Profile Update Request" class="text-xs text-orange-400 font-bold uppercase hover:underline">Request Profile Update →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ── APPLY MODAL ──────────────────────────────────────────── -->
+<div id="apply-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl">
+        <h3 class="text-2xl font-black italic uppercase mb-2">Apply for This Job</h3>
+        <p class="text-slate-400 text-sm mb-6" id="modal-job-summary">--</p>
+
+        <div class="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 mb-6">
+            <p class="text-orange-300 text-sm font-bold">Appointment Fee: <span id="modal-fee" class="text-white">--</span></p>
+            <p class="text-slate-400 text-xs mt-1">Charged only if you are approved and the appointment is confirmed.</p>
+        </div>
+
+        <!-- Credit redemption -->
+        <div id="modal-credit-section" class="mb-6 hidden">
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="use-credits" class="accent-orange-500 w-4 h-4">
+                <span class="text-white text-sm font-semibold">Use my credit balance (<span id="modal-credit-amount" class="text-green-400">$0</span> available)</span>
+            </label>
+        </div>
+
+        <div id="modal-error" class="hidden mb-4 bg-red-500/20 border border-red-500 text-red-400 text-sm text-center py-3 rounded-xl"></div>
+
+        <div class="flex gap-3">
+            <button onclick="closeModal()" class="flex-1 bg-white/5 text-slate-400 py-4 rounded-xl font-bold uppercase text-sm hover:bg-white/10 transition-all">Cancel</button>
+            <button onclick="submitApplication()" class="flex-1 brand-orange-bg hover:bg-[#e85a20] text-white py-4 rounded-xl font-black uppercase text-sm transition-all">Apply Now →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let contractorData = null;
+    let selectedJobId = null;
+    let selectedJobFee = 0;
+
+    // ── INIT ──────────────────────────────────────────────────
+    async function init() {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return; }
+        currentUser = session.user;
+
+        const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+        const { data: contractor } = await sb.from('contractors').select('*').eq('id', currentUser.id).single();
+
+        if (!contractor) { window.location.href = 'login.html'; return; }
+        contractorData = contractor;
+
+        // Populate UI
+        const name = profile?.full_name || 'Contractor';
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+        document.getElementById('avatar-initials').textContent = initials;
+        document.getElementById('sidebar-name').textContent = name;
+        document.getElementById('sidebar-trade').textContent = contractor.trade || '--';
+        document.getElementById('welcome-name').textContent = name.split(' ')[0];
+        document.getElementById('profile-name').textContent = name;
+        document.getElementById('profile-email').textContent = profile?.email || '--';
+        document.getElementById('profile-phone').textContent = profile?.phone || '--';
+        document.getElementById('profile-business').textContent = contractor.business_name || '--';
+        document.getElementById('profile-trade').textContent = contractor.trade || '--';
+        document.getElementById('profile-area').textContent = contractor.service_area || '--';
+        document.getElementById('profile-market').textContent = contractor.market || '--';
+        document.getElementById('profile-license').textContent = contractor.license_number || '--';
+        document.getElementById('profile-insurance').textContent = contractor.insurance_provider || '--';
+        document.getElementById('profile-refcode').textContent = contractor.referral_code || '--';
+        document.getElementById('referral-code-display').textContent = contractor.referral_code || '------';
+
+        const credits = contractor.credit_balance || 0;
+        document.getElementById('sidebar-credits').textContent = `$${credits}`;
+        document.getElementById('stat-credits').textContent = `$${credits}`;
+        document.getElementById('credits-balance').textContent = `$${credits}`;
+
+        // Verified/approved status
+        document.getElementById('profile-verified').innerHTML = contractor.verified
+            ? '<span class="text-green-400">✅ Verified</span>' : '<span class="text-yellow-400">⏳ Pending</span>';
+        document.getElementById('profile-approved').innerHTML = contractor.approved
+            ? '<span class="text-green-400">✅ Approved</span>' : '<span class="text-yellow-400">⏳ Pending</span>';
+
+        if (!contractor.approved) document.getElementById('pending-banner').classList.remove('hidden');
+
+        // License/insurance expiry checks
+        checkExpiry(contractor.license_expiry, 'License', contractor.insurance_expiry, 'Insurance');
+        renderExpiryStatus(contractor);
+
+        await loadDashboardStats();
+        await loadJobs();
+        await loadApplications();
+        await loadCreditHistory();
+    }
+
+    // ── EXPIRY CHECK ──────────────────────────────────────────
+    function checkExpiry(licenseExp, licenseLabel, insuranceExp, insuranceLabel) {
+        const now = new Date();
+        const sixtyDays = 60 * 24 * 60 * 60 * 1000;
+        const alertEl = document.getElementById('license-alert');
+        const alertText = document.getElementById('license-alert-text');
+        const messages = [];
+
+        [{ date: licenseExp, label: 'License' }, { date: insuranceExp, label: 'Insurance' }].forEach(({ date, label }) => {
+            if (!date) return;
+            const exp = new Date(date);
+            const diff = exp - now;
+            if (diff < 0) messages.push(`<p class="text-red-300 font-black text-sm uppercase">${label} EXPIRED on ${exp.toLocaleDateString()}</p><p class="text-red-200 text-xs mt-0.5">Please renew immediately — your account may be suspended.</p>`);
+            else if (diff < sixtyDays) messages.push(`<p class="text-red-300 font-black text-sm uppercase">${label} expires ${exp.toLocaleDateString()}</p><p class="text-red-200 text-xs mt-0.5">Renew now to avoid losing your approved status.</p>`);
+        });
+
+        if (messages.length) { alertText.innerHTML = messages.join(''); alertEl.classList.remove('hidden'); }
+    }
+
+    function renderExpiryStatus(c) {
+        const el = document.getElementById('expiry-status');
+        const now = new Date();
+        const licExp = c.license_expiry ? new Date(c.license_expiry) : null;
+        const insExp = c.insurance_expiry ? new Date(c.insurance_expiry) : null;
+        const sixtyDays = 60 * 24 * 60 * 60 * 1000;
+
+        let status = 'all-clear';
+        if (licExp && (licExp - now < sixtyDays)) status = 'warning';
+        if (insExp && (insExp - now < sixtyDays)) status = 'warning';
+        if ((licExp && licExp < now) || (insExp && insExp < now)) status = 'expired';
+
+        document.getElementById('profile-license-expiry').innerHTML = licExp
+            ? `<span class="${licExp < now ? 'text-red-400' : licExp - now < sixtyDays ? 'text-yellow-400' : 'text-green-400'} font-semibold">${licExp.toLocaleDateString()}</span>` : '--';
+        document.getElementById('profile-insurance-expiry').innerHTML = insExp
+            ? `<span class="${insExp < now ? 'text-red-400' : insExp - now < sixtyDays ? 'text-yellow-400' : 'text-green-400'} font-semibold">${insExp.toLocaleDateString()}</span>` : '--';
+
+        if (status === 'all-clear') el.className = 'text-xs bg-green-500/10 border border-green-500/20 text-green-400 font-bold uppercase px-3 py-1 rounded-full inline-block';
+        else if (status === 'warning') el.className = 'text-xs bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 font-bold uppercase px-3 py-1 rounded-full inline-block';
+        else el.className = 'text-xs bg-red-500/10 border border-red-500/20 text-red-400 font-bold uppercase px-3 py-1 rounded-full inline-block';
+
+        el.textContent = status === 'all-clear' ? '✅ All Good' : status === 'warning' ? '⚠️ Expiring Soon' : '❌ Expired';
+    }
+
+    // ── STATS ─────────────────────────────────────────────────
+    async function loadDashboardStats() {
+        const trade = contractorData.trade;
+        const { count: openCount } = await sb.from('jobs').select('*', { count: 'exact', head: true })
+            .eq('status', 'open').ilike('trade', `%${trade}%`);
+        const { count: appCount } = await sb.from('job_applications').select('*', { count: 'exact', head: true })
+            .eq('contractor_id', currentUser.id);
+        const { count: refCount } = await sb.from('referrals').select('*', { count: 'exact', head: true })
+            .eq('contractor_id', currentUser.id).eq('status', 'earned');
+
+        document.getElementById('stat-open-jobs').textContent = openCount || 0;
+        document.getElementById('stat-applications').textContent = appCount || 0;
+        document.getElementById('stat-referrals').textContent = refCount || 0;
+
+        const badge = document.getElementById('jobs-badge');
+        if (openCount > 0) { badge.textContent = openCount; badge.classList.remove('hidden'); }
+    }
+
+    // ── JOB BOARD ─────────────────────────────────────────────
+    async function loadJobs() {
+        const trade = contractorData?.trade || '';
+        const typeFilter = document.getElementById('filter-type')?.value;
+
+        let query = sb.from('jobs').select('*').eq('status', 'open').order('created_at', { ascending: false });
+        if (typeFilter) query = query.eq('property_type', typeFilter);
+
+        const { data: jobs, error } = await query;
+
+        const grid = document.getElementById('jobs-grid');
+        const preview = document.getElementById('dashboard-jobs-preview');
+
+        if (!jobs || jobs.length === 0) {
+            const empty = '<div class="stat-card rounded-2xl p-8 text-center text-slate-500 col-span-3"><p class="text-2xl mb-2">📋</p><p class="font-bold">No open jobs right now.</p><p class="text-xs mt-1">Check back soon — we post new jobs daily.</p></div>';
+            if (grid) grid.innerHTML = empty;
+            if (preview) preview.innerHTML = empty;
+            return;
+        }
+
+        const cards = jobs.map(job => buildJobCard(job)).join('');
+        if (grid) grid.innerHTML = cards;
+        if (preview) preview.innerHTML = jobs.slice(0,2).map(job => buildJobCard(job)).join('');
+    }
+
+    function buildJobCard(job) {
+        const tierMap = { Solar: 'high', Remodeling: 'high', Roofers: 'high', HVAC: 'high', 'Siding & Windows': 'high',
+            'Pool Service': 'mid', Painters: 'mid', 'Driveway & Paving': 'mid', Masonry: 'mid', 'Decks & Fencing': 'mid', Electricians: 'mid',
+            'Tree Cutters': 'low', Plumbers: 'low', Landscapers: 'low', Gutters: 'low' };
+        const tier = tierMap[job.trade] || 'mid';
+        const typeLabel = job.property_type === 'commercial' ? '🏢 Commercial' : '🏠 Residential';
+        const photos = job.photo_urls?.length ? `<div class="flex gap-2 mt-3">${job.photo_urls.slice(0,3).map(url => `<img src="${url}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`).join('')}</div>` : '';
+
+        return `
+        <div class="job-card stat-card rounded-2xl p-6 border border-white/5 hover:border-orange-500/30 cursor-default">
+            <div class="flex items-start justify-between mb-3">
+                <div>
+                    <span class="badge-${tier} text-xs font-black uppercase px-2 py-0.5 rounded-full">${job.trade}</span>
+                    <span class="ml-2 text-xs text-slate-500 font-semibold">${typeLabel}</span>
+                </div>
+                <span class="text-orange-400 font-black text-lg">$${job.appointment_fee}</span>
+            </div>
+            <p class="text-white font-black text-lg mb-1">📍 ${job.town}${job.hamlet ? `, ${job.hamlet}` : ''}</p>
+            <p class="text-slate-400 text-sm leading-relaxed mb-3">${job.description?.slice(0, 120)}${job.description?.length > 120 ? '...' : ''}</p>
+            <p class="text-slate-500 text-xs mb-1">⏰ <strong class="text-slate-300">Requested slots:</strong> ${job.time_slots || 'Flexible'}</p>
+            <p class="text-slate-500 text-xs mb-3">📊 <strong class="text-slate-300">Quotes requested:</strong> ${job.num_quotes}</p>
+            ${photos}
+            <button onclick="openApplyModal('${job.id}', ${job.appointment_fee}, '${job.trade} job in ${job.town}')"
+                class="mt-4 w-full brand-orange-bg hover:bg-[#e85a20] text-white py-3 rounded-xl font-black text-sm uppercase transition-all">
+                Apply for This Job →
+            </button>
+        </div>`;
+    }
+
+    // ── APPLICATIONS ──────────────────────────────────────────
+    async function loadApplications() {
+        const { data } = await sb.from('job_applications').select('*, jobs(*)').eq('contractor_id', currentUser.id).order('applied_at', { ascending: false });
+        const el = document.getElementById('applications-list');
+        if (!data || data.length === 0) { el.innerHTML = '<div class="stat-card rounded-2xl p-6 text-center text-slate-500 text-sm">No applications yet. Check the job board.</div>'; return; }
+
+        el.innerHTML = data.map(app => {
+            const job = app.jobs;
+            const statusColor = app.status === 'approved' ? 'text-green-400' : app.status === 'rejected' ? 'text-red-400' : 'text-yellow-400';
+            const statusLabel = app.status === 'approved' ? '✅ Approved' : app.status === 'rejected' ? '❌ Not Selected' : '⏳ Pending Review';
+            return `
+            <div class="stat-card rounded-2xl p-5 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <p class="text-white font-black">${job?.trade || '--'} — ${job?.town || '--'}${job?.hamlet ? `, ${job.hamlet}` : ''}</p>
+                    <p class="text-slate-500 text-xs mt-0.5">Applied ${new Date(app.applied_at).toLocaleDateString()}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-black text-sm ${statusColor}">${statusLabel}</p>
+                    <p class="text-slate-500 text-xs mt-0.5">Fee: $${job?.appointment_fee || '--'}</p>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ── CREDIT HISTORY ────────────────────────────────────────
+    async function loadCreditHistory() {
+        const { data } = await sb.from('credit_transactions').select('*').eq('contractor_id', currentUser.id).order('created_at', { ascending: false });
+        const el = document.getElementById('credit-history');
+        if (!data || data.length === 0) return;
+
+        el.innerHTML = data.map(tx => {
+            const isEarned = tx.type === 'earned';
+            return `
+            <div class="stat-card rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-white font-semibold text-sm">${tx.description}</p>
+                    <p class="text-slate-500 text-xs mt-0.5">${new Date(tx.created_at).toLocaleDateString()}</p>
+                </div>
+                <p class="font-black ${isEarned ? 'text-green-400' : 'text-orange-400'}">${isEarned ? '+' : '-'}$${Math.abs(tx.amount)}</p>
+            </div>`;
+        }).join('');
+    }
+
+    // ── MODAL ─────────────────────────────────────────────────
+    function openApplyModal(jobId, fee, summary) {
+        if (!contractorData?.approved) { alert('Your account is pending approval. You can apply for jobs once verified.'); return; }
+        selectedJobId = jobId;
+        selectedJobFee = fee;
+        document.getElementById('modal-job-summary').textContent = summary;
+        document.getElementById('modal-fee').textContent = `$${fee}`;
+        const credits = contractorData.credit_balance || 0;
+        const creditSection = document.getElementById('modal-credit-section');
+        const creditAmount = document.getElementById('modal-credit-amount');
+        if (credits > 0) { creditSection.classList.remove('hidden'); creditAmount.textContent = `$${credits}`; }
+        document.getElementById('modal-error').classList.add('hidden');
+        document.getElementById('apply-modal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('apply-modal').classList.add('hidden'); selectedJobId = null; }
+
+    async function submitApplication() {
+        if (!selectedJobId) return;
+        const errEl = document.getElementById('modal-error');
+        errEl.classList.add('hidden');
+
+        const { error } = await sb.from('job_applications').insert({ job_id: selectedJobId, contractor_id: currentUser.id });
+        if (error) { errEl.textContent = error.code === '23505' ? 'You already applied for this job.' : error.message; errEl.classList.remove('hidden'); return; }
+
+        closeModal();
+        await loadApplications();
+        alert('✅ Application submitted! We\'ll review and be in touch within 24 hours.');
+    }
+
+    // ── TAB SWITCHING ─────────────────────────────────────────
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        event?.currentTarget?.classList.add('active');
+    }
+
+    // ── REFERRAL CODE COPY ────────────────────────────────────
+    function copyReferralCode() {
+        const code = contractorData?.referral_code || '';
+        navigator.clipboard.writeText(code).then(() => alert(`Code "${code}" copied to clipboard!`));
+    }
+
+    // ── LOGOUT ────────────────────────────────────────────────
+    async function handleLogout() { await sb.auth.signOut(); window.location.href = 'login.html'; }
+
+    init();
+</script>
+</body>
+</html>

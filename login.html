@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booked by Boyle | Login</title>
+    <link rel="icon" type="image/png" href="https://res-console.cloudinary.com/dkmlcoqjn/thumbnails/transform/v1/image/upload/Y19maWxsLGhfMjAwLHdfMjAw/v1/VW50aXRsZWRfOF90bnFqcnQ=/template_primary">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; min-height: 100vh; }
+        .brand-orange { color: #ff6b35; }
+        .brand-orange-bg { background-color: #ff6b35; }
+        .card { background:#fff; border:2px solid rgba(255,107,53,0.25); border-radius:1.5rem; box-shadow:0 8px 40px rgba(255,107,53,0.08),0 2px 12px rgba(0,0,0,0.06); transition:box-shadow 0.3s; }
+        .card:hover { box-shadow:0 16px 56px rgba(255,107,53,0.14),0 4px 20px rgba(0,0,0,0.08); }
+        .tab-active  { background:#ff6b35; color:white; }
+        .tab-inactive { background:#f1f5f9; color:#94a3b8; }
+        .field-input { width:100%; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:0.75rem; padding:0.875rem 1rem; color:#0f172a; font-size:0.875rem; transition:border-color 0.2s,box-shadow 0.2s; }
+        .field-input:focus { outline:none; border-color:#ff6b35; box-shadow:0 0 0 3px rgba(255,107,53,0.1); }
+        .field-input::placeholder { color:#94a3b8; }
+        .field-input.invalid { border-color:#ef4444; box-shadow:0 0 0 3px rgba(239,68,68,0.1); }
+        select.field-input option { background:#fff; color:#0f172a; }
+        .field-label { display:block; font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:#64748b; margin-bottom:0.4rem; }
+        .progress-track { background:#e2e8f0; border-radius:999px; height:4px; }
+        .progress-fill  { background:linear-gradient(90deg,#ff6b35,#ff8c5a); border-radius:999px; height:4px; transition:width 0.4s ease; }
+        .trade-btn { border:1.5px solid #e2e8f0; border-radius:0.65rem; padding:0.6rem 0.4rem; text-align:center; font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:#64748b; cursor:pointer; transition:all 0.15s; background:#f8fafc; line-height:1.3; }
+        .trade-btn:hover { border-color:#ff6b35; color:#ff6b35; background:rgba(255,107,53,0.04); }
+        .trade-btn.selected { border-color:#ff6b35; color:#ff6b35; background:rgba(255,107,53,0.08); }
+        .toggle-btn { flex:1; padding:0.7rem 0.4rem; border:1.5px solid #e2e8f0; border-radius:0.65rem; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:#64748b; cursor:pointer; transition:all 0.15s; background:#f8fafc; text-align:center; }
+        .toggle-btn:hover  { border-color:#ff6b35; color:#ff6b35; }
+        .toggle-btn.selected { border-color:#ff6b35; color:#ff6b35; background:rgba(255,107,53,0.08); }
+        .prop-type-btn { border:1.5px solid #e2e8f0; border-radius:0.75rem; padding:0.9rem 0.6rem; text-align:center; cursor:pointer; transition:all 0.15s; background:#f8fafc; }
+        .prop-type-btn:hover { border-color:#ff6b35; }
+        .prop-type-btn.selected { border-color:#ff6b35; background:rgba(255,107,53,0.06); }
+        .prop-type-btn .icon { font-size:1.6rem; margin-bottom:0.35rem; }
+        .prop-type-btn .lbl { font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#94a3b8; }
+        .prop-type-btn.selected .lbl { color:#ff6b35; }
+        .autocomplete-list { position:absolute; top:100%; left:0; right:0; background:#fff; border:1.5px solid rgba(255,107,53,0.25); border-radius:0.75rem; z-index:50; max-height:180px; overflow-y:auto; margin-top:4px; box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+        .autocomplete-item { padding:0.6rem 1rem; font-size:0.78rem; color:#475569; cursor:pointer; transition:background 0.1s; }
+        .autocomplete-item:hover { background:rgba(255,107,53,0.06); color:#0f172a; }
+        .step-panel { animation:fadeSlide 0.25s ease; }
+        @keyframes fadeSlide { from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:translateX(0)} }
+        .checkbox-wrap { display:flex; align-items:flex-start; gap:0.75rem; }
+        .checkbox-wrap input[type="checkbox"] { margin-top:2px; accent-color:#ff6b35; width:16px; height:16px; flex-shrink:0; cursor:pointer; }
+        .terms-box { background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:0.75rem; padding:1rem; max-height:10rem; overflow-y:auto; font-size:0.75rem; color:#475569; line-height:1.6; }
+        .terms-box strong { color:#334155; }
+        .terms-box .terms-title { font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#334155; font-size:0.65rem; margin-bottom:0.5rem; display:block; }
+        .info-box { background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:0.75rem; padding:0.75rem 1rem; }
+        .info-box p { color:#475569; font-size:0.78rem; line-height:1.5; }
+        .pw-req { display:flex; align-items:center; gap:0.4rem; font-size:0.68rem; color:#94a3b8; transition:color 0.2s; }
+        .pw-req.met { color:#22c55e; }
+        .pw-req .dot { width:6px; height:6px; border-radius:50%; background:#cbd5e1; flex-shrink:0; transition:background 0.2s; }
+        .pw-req.met .dot { background:#22c55e; }
+        .err-box { background:#fef2f2; border:1.5px solid #fecaca; color:#dc2626; font-size:0.78rem; text-align:center; padding:0.7rem; border-radius:0.75rem; }
+        .suc-box { background:#f0fdf4; border:1.5px solid #bbf7d0; color:#16a34a; font-size:0.78rem; text-align:center; padding:0.7rem; border-radius:0.75rem; }
+        .nav-font { font-weight:800; font-style:italic; text-transform:uppercase; letter-spacing:-0.02em; }
+        .upload-area { border:2px dashed #e2e8f0; border-radius:0.75rem; padding:1rem; text-align:center; cursor:pointer; transition:all 0.2s; background:#f8fafc; }
+        .upload-area:hover { border-color:#ff6b35; background:rgba(255,107,53,0.03); }
+        .upload-area.has-file { border-color:#22c55e; background:#f0fdf4; }
+        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:rgba(255,107,53,0.25); border-radius:2px; }
+        input[type="date"].field-input { color:#0f172a; }
+        .section-divider { border:none; border-top:1.5px solid #f1f5f9; margin:1rem 0; }
+    </style>
+</head>
+<body class="flex items-start justify-center px-4 py-10">
+
+<div class="w-full max-w-lg">
+
+    <!-- Logo -->
+    <div class="text-center mb-7">
+        <a href="index.html">
+            <img src="https://res.cloudinary.com/dkmlcoqjn/image/upload/Untitled_3_uw5hxn.png" alt="Booked by Boyle" class="h-16 w-auto mx-auto">
+        </a>
+    </div>
+
+    <div class="card p-8">
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-7">
+            <button onclick="setMainMode('login')"  id="tab-login"  class="flex-1 py-2.5 rounded-xl text-sm font-black uppercase tracking-wide transition-all tab-active">Sign In</button>
+            <button onclick="setMainMode('signup')" id="tab-signup" class="flex-1 py-2.5 rounded-xl text-sm font-black uppercase tracking-wide transition-all tab-inactive">Create Account</button>
+        </div>
+
+        <!-- ════════ LOGIN ════════ -->
+        <div id="login-panel">
+            <div class="mb-4">
+                <label class="field-label">Email</label>
+                <input type="email" id="login-email" class="field-input" placeholder="you@email.com">
+            </div>
+            <div class="mb-5">
+                <label class="field-label">Password</label>
+                <input type="password" id="login-password" class="field-input" placeholder="••••••••">
+            </div>
+            <div id="login-error" class="hidden mb-4 err-box"></div>
+            <button onclick="handleLogin()" class="w-full brand-orange-bg hover:bg-[#e85a20] text-white py-4 rounded-xl font-black text-base italic uppercase transition-all nav-font shadow-sm">Sign In →</button>
+            <p class="text-center text-slate-400 text-xs mt-4"><a href="#" onclick="showReset()" class="hover:text-orange-500 transition-colors">Forgot password?</a></p>
+        </div>
+
+        <!-- ════════ RESET ════════ -->
+        <div id="reset-panel" class="hidden">
+            <p class="text-slate-500 text-sm mb-5 text-center">Enter your email and we'll send a reset link.</p>
+            <div class="mb-5">
+                <label class="field-label">Email</label>
+                <input type="email" id="reset-email" class="field-input" placeholder="you@email.com">
+            </div>
+            <div id="reset-msg" class="hidden mb-4 suc-box">✅ Reset link sent — check your email.</div>
+            <button onclick="handleReset()" class="w-full brand-orange-bg hover:bg-[#e85a20] text-white py-4 rounded-xl font-black italic uppercase transition-all mb-3 nav-font shadow-sm">Send Reset Link</button>
+            <button onclick="setMainMode('login')" class="w-full bg-slate-100 text-slate-500 py-3 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-slate-200 transition-all">← Back to Sign In</button>
+        </div>
+
+        <!-- ════════ SIGNUP SHELL ════════ -->
+        <div id="signup-panel" class="hidden">
+
+            <!-- Step 0: Role picker -->
+            <div id="signup-step-0" class="step-panel">
+                <p class="text-slate-900 font-black text-lg italic uppercase mb-1">Welcome.</p>
+                <p class="text-slate-500 text-sm mb-5">What best describes you?</p>
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <button onclick="chooseRole('contractor')"  class="prop-type-btn" id="role-btn-contractor"><div class="icon">🔨</div><div class="lbl">Contractor</div></button>
+                    <button onclick="chooseRole('residential')" class="prop-type-btn" id="role-btn-residential"><div class="icon">🏠</div><div class="lbl">Homeowner</div></button>
+                    <button onclick="chooseRole('commercial')"  class="prop-type-btn" id="role-btn-commercial"><div class="icon">🏢</div><div class="lbl">Commercial</div></button>
+                </div>
+                <p class="text-slate-400 text-xs text-center">Already have an account? <a href="#" onclick="setMainMode('login')" class="text-orange-500 hover:underline font-bold">Sign in</a></p>
+            </div>
+
+            <!-- Progress bar -->
+            <div id="progress-wrap" class="hidden mb-5">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span id="progress-label" class="text-xs font-bold uppercase tracking-widest text-slate-400"></span>
+                    <span id="progress-pct"   class="text-xs font-black text-orange-500"></span>
+                </div>
+                <div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════
+                 CONTRACTOR STEPS  (C1 → C2 → C3 → C4 → C5)
+                 C1: Personal Info + DOB + Confirm PW
+                 C2: License & Insurance + COI Upload
+                 C3: Trades & Market
+                 C4: As a Homeowner (own/rent, properties)
+                 C5: Notes + Terms
+            ══════════════════════════════════════════════ -->
+            <div id="contractor-steps" class="hidden">
+
+                <!-- C1: Personal Info -->
+                <div id="c-step-1" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">👤 Personal Information</p>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">First Name</label><input type="text" id="c-fname" class="field-input" placeholder="John"></div>
+                        <div><label class="field-label">Last Name</label><input  type="text" id="c-lname" class="field-input" placeholder="Smith"></div>
+                    </div>
+                    <div class="mb-3"><label class="field-label">Date of Birth</label><input type="date" id="c-dob" class="field-input"></div>
+                    <div class="mb-3"><label class="field-label">Business Name</label><input type="text" id="c-bizname" class="field-input" placeholder="Smith Roofing LLC"></div>
+                    <div class="mb-3"><label class="field-label">Business Location / Service Area</label><input type="text" id="c-bizloc" class="field-input" placeholder="e.g. Hauppauge, NY — Nassau & Suffolk"></div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">Phone</label><input type="tel" id="c-phone" class="field-input" placeholder="(631) 555-0100" oninput="fmtPhone(this)"></div>
+                        <div><label class="field-label">Email</label><input type="email" id="c-email" class="field-input" placeholder="you@company.com" oninput="markEmailLive(this,'c-email-msg')"></div>
+                    </div>
+                    <p id="c-email-msg" class="text-xs text-slate-400 mb-3 hidden">⚠️ Enter a valid email — a confirmation link will be sent here.</p>
+                    <div class="mb-1"><label class="field-label">Password</label><input type="password" id="c-password" class="field-input" placeholder="Min 8 characters" oninput="checkPW('c-password','c-pw')"></div>
+                    <div id="c-pw" class="grid grid-cols-2 gap-1.5 mt-2 mb-3">
+                        <div class="pw-req" id="c-pw-len"><div class="dot"></div>8+ characters</div>
+                        <div class="pw-req" id="c-pw-cap"><div class="dot"></div>Uppercase letter</div>
+                        <div class="pw-req" id="c-pw-num"><div class="dot"></div>Number</div>
+                        <div class="pw-req" id="c-pw-sym"><div class="dot"></div>Special character</div>
+                    </div>
+                    <div class="mb-3"><label class="field-label">Confirm Password</label><input type="password" id="c-password2" class="field-input" placeholder="Re-enter password" oninput="checkConfirm('c-password','c-password2','c-pw-match')"></div>
+                    <p id="c-pw-match" class="text-xs mb-3 hidden"></p>
+                    <div id="c1-error" class="hidden mb-3 err-box"></div>
+                    <button onclick="cNext(1)" class="w-full brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Continue →</button>
+                </div>
+
+                <!-- C2: License & Insurance + COI Upload -->
+                <div id="c-step-2" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">🛡️ License & Insurance</p>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">License Type</label><input type="text" id="c-lic-type" class="field-input" placeholder="e.g. Home Improvement"></div>
+                        <div><label class="field-label">License Number</label><input type="text" id="c-lic-num" class="field-input" placeholder="H-12345"></div>
+                    </div>
+                    <div class="mb-3"><label class="field-label">License Expiration</label><input type="date" id="c-lic-exp" class="field-input"></div>
+                    <div class="mb-3"><label class="field-label">Insurance Provider</label><input type="text" id="c-ins-provider" class="field-input" placeholder="e.g. Travelers, Nationwide"></div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div><label class="field-label">Policy Number</label><input type="text" id="c-ins-policy" class="field-input" placeholder="POL-0000000"></div>
+                        <div><label class="field-label">Insurance Expiration</label><input type="date" id="c-ins-exp" class="field-input"></div>
+                    </div>
+                    <!-- COI Upload -->
+                    <div class="mb-4">
+                        <label class="field-label mb-2 block">Certificate of Insurance <span class="font-normal normal-case text-slate-400">(optional — increases approval speed)</span></label>
+                        <label class="upload-area block cursor-pointer" id="coi-upload-area" onclick="document.getElementById('coi-input').click()">
+                            <div class="text-2xl mb-1">📄</div>
+                            <p id="coi-file-label" class="text-xs font-bold text-slate-500">Click to upload COI (PDF, JPG, PNG)</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Max 10MB · Optional but recommended</p>
+                        </label>
+                        <input type="file" id="coi-input" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleCOIUpload(this)">
+                    </div>
+                    <div id="c2-error" class="hidden mb-3 err-box"></div>
+                    <div class="flex gap-3">
+                        <button onclick="cBack(2)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="cNext(2)" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- C3: Trades & Market -->
+                <div id="c-step-3" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-1 tracking-wide">🔨 Trades & Market</p>
+                    <p class="text-slate-400 text-xs mb-3">Select all trades you offer.</p>
+                    <div class="grid grid-cols-3 gap-2 mb-4" id="trade-grid"></div>
+                    <div class="mb-4"><label class="field-label">Other / Custom Trade</label><input type="text" id="c-other-trade" class="field-input" placeholder="e.g. Waterproofing, Fire Suppression…"></div>
+                    <div class="mb-4">
+                        <label class="field-label mb-2 block">Residential and/or Commercial?</label>
+                        <div class="flex gap-2">
+                            <button class="toggle-btn" id="market-res"  onclick="toggleMarket('residential')">🏠 Residential</button>
+                            <button class="toggle-btn" id="market-com"  onclick="toggleMarket('commercial')">🏢 Commercial</button>
+                            <button class="toggle-btn" id="market-both" onclick="toggleMarket('both')">Both</button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="field-label mb-2 block">Google Business Profile?</label>
+                        <div class="flex gap-2">
+                            <button class="toggle-btn" id="gbp-yes" onclick="toggleGBP('yes')">✅ Yes</button>
+                            <button class="toggle-btn" id="gbp-no"  onclick="toggleGBP('no')">❌ No</button>
+                        </div>
+                    </div>
+                    <div id="c3-error" class="hidden mb-3 err-box"></div>
+                    <div class="flex gap-3">
+                        <button onclick="cBack(3)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="cNext(3)" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- C4: As a Homeowner (own/rent + properties) -->
+                <div id="c-step-4" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-1 tracking-wide">🏠 Your Home</p>
+                    <p class="text-slate-400 text-xs mb-4">All contractors are also registered as homeowners so you can request quotes from other trades too.</p>
+                    <div class="mb-4">
+                        <label class="field-label mb-2 block">Do you own or rent your home?</label>
+                        <div class="flex gap-2">
+                            <button class="toggle-btn" id="c-own-btn"  onclick="setCOwnership('own')">🏠 I Own</button>
+                            <button class="toggle-btn" id="c-rent-btn" onclick="setCOwnership('rent')">🔑 I Rent</button>
+                        </div>
+                    </div>
+                    <div id="c-owner-extra" class="hidden mb-4">
+                        <label class="field-label">How many properties do you want to register?</label>
+                        <input type="number" id="c-prop-count" class="field-input" min="1" max="20" value="1" oninput="cPropCount=Math.max(1,parseInt(this.value)||1)">
+                    </div>
+                    <div id="c-renter-notice" class="hidden mb-4 info-box">
+                        <p>No problem — you can still request quotes on your rental. Note: your landlord may need to approve certain work.</p>
+                    </div>
+                    <div id="c-property-fields"></div>
+                    <div id="c4-error" class="hidden mb-3 err-box"></div>
+                    <div class="flex gap-3 mt-3">
+                        <button onclick="cBack(4)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="cNext(4)" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- C5: Notes + Terms -->
+                <div id="c-step-5" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">📋 Final Details & Agreement</p>
+                    <div class="mb-4">
+                        <label class="field-label">Anything Else We Should Know?</label>
+                        <textarea id="c-notes" class="field-input resize-none" rows="3" placeholder="Years in business, specialties, certifications, awards…"></textarea>
+                    </div>
+                    <div class="terms-box mb-4">
+                        <span class="terms-title">Booked by Boyle — Contractor Partnership Agreement</span>
+                        <p class="mb-2">By creating an account, you agree to operate within the Booked by Boyle network in good faith. This includes accurate reporting of all jobs sourced through this network, timely payment of appointment fees as outlined in Schedule A, and cooperation with any verification or audit requests.</p>
+                        <p class="mb-2"><strong>Fee Reporting:</strong> You agree to accurately disclose the total contract value of any job received through a Booked by Boyle referral, including change orders or scope expansions. Intentional misrepresentation of job value constitutes a material breach of this agreement.</p>
+                        <p class="mb-2"><strong>Non-Circumvention:</strong> You agree not to solicit or accept payment from clients introduced through Booked by Boyle in a manner designed to avoid platform fees. Circumvention may result in immediate removal and pursuit of unpaid fees.</p>
+                        <p class="mb-2"><strong>License & Insurance Verification:</strong> You consent to Booked by Boyle verifying your credentials with applicable New York State and local agencies at any time during your membership.</p>
+                        <p><strong>Quality of Work:</strong> You acknowledge that Booked by Boyle acts solely as a referral and scheduling intermediary. The quality, safety, timeliness, and legality of all work performed is solely your responsibility. Booked by Boyle makes no guarantees regarding outcomes and accepts no liability for disputes between you and property owners.</p>
+                    </div>
+                    <div class="space-y-3 mb-5">
+                        <label class="checkbox-wrap cursor-pointer">
+                            <input type="checkbox" id="c-terms-check">
+                            <span class="text-slate-500 text-xs leading-relaxed">I have read and agree to the <a href="contractor-terms.html" target="_blank" class="text-orange-500 hover:underline font-bold">Booked by Boyle Contractor Partnership Agreement</a>. I understand this is a legally binding agreement including the fee structure in Schedule A.</span>
+                        </label>
+                        <label class="checkbox-wrap cursor-pointer">
+                            <input type="checkbox" id="c-verify-check">
+                            <span class="text-slate-500 text-xs leading-relaxed">I consent to Booked by Boyle verifying my license and insurance with applicable state and local agencies.</span>
+                        </label>
+                    </div>
+                    <div id="c5-error"   class="hidden mb-3 err-box"></div>
+                    <div id="c5-success" class="hidden mb-3 suc-box"></div>
+                    <div class="flex gap-3">
+                        <button onclick="cBack(5)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="submitContractor()" id="c-submit-btn" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Submit Application →</button>
+                    </div>
+                </div>
+
+            </div><!-- /contractor-steps -->
+
+            <!-- ══════════════════════════════════════════════
+                 RESIDENTIAL STEPS  (R1 → R2 → R3)
+                 R1: About You + DOB + PW + own/rent + prop count
+                 R2: Property addresses (skipped for renters)
+                 R3: Terms
+            ══════════════════════════════════════════════ -->
+            <div id="residential-steps" class="hidden">
+
+                <!-- R1: About You -->
+                <div id="r-step-1" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">🏠 About You</p>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">First Name</label><input type="text" id="r-fname" class="field-input" placeholder="Jane"></div>
+                        <div><label class="field-label">Last Name</label><input  type="text" id="r-lname" class="field-input" placeholder="Doe"></div>
+                    </div>
+                    <div class="mb-3"><label class="field-label">Date of Birth</label><input type="date" id="r-dob" class="field-input"></div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">Phone</label><input type="tel" id="r-phone" class="field-input" placeholder="(631) 555-0100" oninput="fmtPhone(this)"></div>
+                        <div><label class="field-label">Email</label><input type="email" id="r-email" class="field-input" placeholder="you@email.com" oninput="markEmailLive(this,'r-email-msg')"></div>
+                    </div>
+                    <p id="r-email-msg" class="text-xs text-slate-400 mb-3 hidden">⚠️ Enter a valid email — a confirmation link will be sent here.</p>
+                    <div class="mb-1"><label class="field-label">Password</label><input type="password" id="r-password" class="field-input" placeholder="Min 8 characters" oninput="checkPW('r-password','r-pw')"></div>
+                    <div id="r-pw" class="grid grid-cols-2 gap-1.5 mt-2 mb-3">
+                        <div class="pw-req" id="r-pw-len"><div class="dot"></div>8+ characters</div>
+                        <div class="pw-req" id="r-pw-cap"><div class="dot"></div>Uppercase letter</div>
+                        <div class="pw-req" id="r-pw-num"><div class="dot"></div>Number</div>
+                        <div class="pw-req" id="r-pw-sym"><div class="dot"></div>Special character</div>
+                    </div>
+                    <div class="mb-4"><label class="field-label">Confirm Password</label><input type="password" id="r-password2" class="field-input" placeholder="Re-enter password" oninput="checkConfirm('r-password','r-password2','r-pw-match')"></div>
+                    <p id="r-pw-match" class="text-xs mb-3 hidden"></p>
+                    <div class="mb-4">
+                        <label class="field-label mb-2 block">Do you own or rent?</label>
+                        <div class="flex gap-2">
+                            <button class="toggle-btn" id="own-btn"  onclick="setOwnership('own')">🏠 I Own</button>
+                            <button class="toggle-btn" id="rent-btn" onclick="setOwnership('rent')">🔑 I Rent</button>
+                        </div>
+                    </div>
+                    <div id="owner-extra" class="hidden mb-4">
+                        <label class="field-label">How many properties do you want to register?</label>
+                        <input type="number" id="r-prop-count" class="field-input" min="1" max="20" value="1" oninput="rPropCount=Math.max(1,parseInt(this.value)||1)">
+                    </div>
+                    <div id="renter-notice" class="hidden mb-4 info-box">
+                        <p>No problem — renters can still request contractor quotes. Note: your landlord may need to approve certain work.</p>
+                    </div>
+                    <div class="mb-3"><label class="field-label">Referral Code <span class="font-normal normal-case text-slate-400">(optional)</span></label><input type="text" id="r-referral" class="field-input uppercase" placeholder="CONTRACTOR CODE"></div>
+                    <div id="r1-error" class="hidden mb-3 err-box"></div>
+                    <button onclick="rNext(1)" class="w-full brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm mt-1">Continue →</button>
+                </div>
+
+                <!-- R2: Property Addresses -->
+                <div id="r-step-2" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-1 tracking-wide">📍 Your Properties</p>
+                    <p class="text-slate-400 text-xs mb-4">Start typing each address and select from suggestions for a standardized format.</p>
+                    <div id="property-fields"></div>
+                    <div id="r2-error" class="hidden mb-3 err-box"></div>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="rBack(2)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="rNext(2)" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- R3: Terms -->
+                <div id="r-step-3" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">📋 Terms & Agreement</p>
+                    <div class="terms-box mb-4">
+                        <span class="terms-title">Booked by Boyle — Property Owner Terms of Use</span>
+                        <p class="mb-2">Booked by Boyle provides its contractor referral and scheduling service to property owners at <strong>absolutely no charge</strong>. Our service is funded entirely by fees paid by the contractors we introduce to you.</p>
+                        <p class="mb-2"><strong>No Guarantee of Work Quality:</strong> Booked by Boyle acts solely as a referral and scheduling intermediary. We do not perform, supervise, or warrant any work carried out by contractors in our network. We make no representations regarding the quality, safety, timeliness, or fitness of work performed. All disputes regarding the quality of work must be resolved directly between you and the contractor. Booked by Boyle is not liable for any damages, losses, injuries, or costs arising from work performed by a referred contractor.</p>
+                        <p class="mb-2"><strong>Good Faith Obligation:</strong> By using this service, you agree to act in good faith — accurately representing the scope of work, informing us if you hire a referred contractor, and not assisting any contractor in concealing a completed job to avoid our referral fees.</p>
+                        <p class="mb-2"><strong>Non-Circumvention:</strong> If you enter into a paid agreement with a contractor introduced by Booked by Boyle, you agree not to knowingly assist that contractor in circumventing our fee structure. This includes off-the-books arrangements, falsely reporting no work was performed, or any other means of fee avoidance.</p>
+                        <p><strong>Your Privacy:</strong> Your contact information and property address are kept strictly private. We never sell or share your information with third parties.</p>
+                    </div>
+                    <div class="mb-5">
+                        <label class="checkbox-wrap cursor-pointer">
+                            <input type="checkbox" id="r-terms-check">
+                            <span class="text-slate-500 text-xs leading-relaxed">I have read and agree to the Booked by Boyle Property Owner Terms of Use, including the acknowledgment that Booked by Boyle is not responsible for the quality of work performed by referred contractors.</span>
+                        </label>
+                    </div>
+                    <div id="r3-error"   class="hidden mb-3 err-box"></div>
+                    <div id="r3-success" class="hidden mb-3 suc-box"></div>
+                    <div class="flex gap-3">
+                        <button onclick="rBack(3)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="submitResidential()" id="r-submit-btn" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Create Account →</button>
+                    </div>
+                </div>
+
+            </div><!-- /residential-steps -->
+
+            <!-- ══════════════════════════════════════════════
+                 COMMERCIAL STEPS  (COM1 → COM2 → COM3)
+                 COM1: Account Details + DOB + PW
+                 COM2: Property Addresses
+                 COM3: Terms
+            ══════════════════════════════════════════════ -->
+            <div id="commercial-steps" class="hidden">
+
+                <!-- COM1: Account Details -->
+                <div id="com-step-1" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">🏢 Account Details</p>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">First Name</label><input type="text" id="com-fname" class="field-input" placeholder="Jane"></div>
+                        <div><label class="field-label">Last Name</label><input  type="text" id="com-lname" class="field-input" placeholder="Doe"></div>
+                    </div>
+                    <div class="mb-3"><label class="field-label">Date of Birth</label><input type="date" id="com-dob" class="field-input"></div>
+                    <div class="mb-3"><label class="field-label">Company / Property Management Name</label><input type="text" id="com-company" class="field-input" placeholder="Sunrise Property Group"></div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="field-label">Phone</label><input type="tel" id="com-phone" class="field-input" placeholder="(631) 555-0100" oninput="fmtPhone(this)"></div>
+                        <div><label class="field-label">Email</label><input type="email" id="com-email" class="field-input" placeholder="you@company.com" oninput="markEmailLive(this,'com-email-msg')"></div>
+                    </div>
+                    <p id="com-email-msg" class="text-xs text-slate-400 mb-3 hidden">⚠️ Enter a valid email — a confirmation link will be sent here.</p>
+                    <div class="mb-1"><label class="field-label">Password</label><input type="password" id="com-password" class="field-input" placeholder="Min 8 characters" oninput="checkPW('com-password','com-pw')"></div>
+                    <div id="com-pw" class="grid grid-cols-2 gap-1.5 mt-2 mb-3">
+                        <div class="pw-req" id="com-pw-len"><div class="dot"></div>8+ characters</div>
+                        <div class="pw-req" id="com-pw-cap"><div class="dot"></div>Uppercase letter</div>
+                        <div class="pw-req" id="com-pw-num"><div class="dot"></div>Number</div>
+                        <div class="pw-req" id="com-pw-sym"><div class="dot"></div>Special character</div>
+                    </div>
+                    <div class="mb-4"><label class="field-label">Confirm Password</label><input type="password" id="com-password2" class="field-input" placeholder="Re-enter password" oninput="checkConfirm('com-password','com-password2','com-pw-match')"></div>
+                    <p id="com-pw-match" class="text-xs mb-3 hidden"></p>
+                    <div class="mb-3"><label class="field-label">How many properties do you manage?</label><input type="number" id="com-prop-count" class="field-input" min="1" max="500" placeholder="3" oninput="comPropCount=Math.max(1,parseInt(this.value)||1)"></div>
+                    <div id="com1-error" class="hidden mb-3 err-box"></div>
+                    <button onclick="comNext(1)" class="w-full brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm mt-1">Continue →</button>
+                </div>
+
+                <!-- COM2: Property Addresses -->
+                <div id="com-step-2" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-1 tracking-wide">📍 Your Properties</p>
+                    <p class="text-slate-400 text-xs mb-1">Add each property you'd like to register. You can add more later from your dashboard.</p>
+                    <p class="text-slate-400 text-xs mb-4">Start typing and select from suggestions for a standardized format.</p>
+                    <div id="com-property-fields"></div>
+                    <div id="com2-error" class="hidden mb-3 err-box"></div>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="comBack(2)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="comNext(2)" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- COM3: Terms -->
+                <div id="com-step-3" class="step-panel hidden">
+                    <p class="text-slate-700 font-black text-sm italic uppercase mb-4 tracking-wide">📋 Terms & Agreement</p>
+                    <div class="terms-box mb-4">
+                        <span class="terms-title">Booked by Boyle — Commercial Property Owner Terms of Use</span>
+                        <p class="mb-2">Booked by Boyle provides its contractor referral and scheduling service to commercial property owners and managers at <strong>absolutely no charge</strong>.</p>
+                        <p class="mb-2"><strong>No Guarantee of Work Quality:</strong> Booked by Boyle acts solely as a referral and scheduling intermediary. We do not perform, supervise, or warrant any work carried out by contractors in our network. We make no representations regarding the quality, safety, timeliness, fitness, or code compliance of work performed. All disputes regarding work quality must be resolved directly between you and the contractor. Booked by Boyle accepts no liability for any damages, losses, regulatory penalties, injuries, or costs arising from work performed by a referred contractor.</p>
+                        <p class="mb-2"><strong>Good Faith Obligation:</strong> You agree to act in good faith — accurately representing project scope, notifying us if a referred contractor is hired, and not assisting any contractor in concealing a completed job to avoid our referral fees.</p>
+                        <p class="mb-2"><strong>Non-Circumvention:</strong> You agree not to knowingly assist a contractor introduced by Booked by Boyle in circumventing our fee structure. Violations may result in account termination and pursuit of damages.</p>
+                        <p>Your contact and property information is kept strictly private and never sold or shared.</p>
+                    </div>
+                    <div class="mb-5">
+                        <label class="checkbox-wrap cursor-pointer">
+                            <input type="checkbox" id="com-terms-check">
+                            <span class="text-slate-500 text-xs leading-relaxed">I have read and agree to the Booked by Boyle Commercial Property Owner Terms of Use, including the acknowledgment that Booked by Boyle is not responsible for the quality of work performed by referred contractors.</span>
+                        </label>
+                    </div>
+                    <div id="com3-error"   class="hidden mb-3 err-box"></div>
+                    <div id="com3-success" class="hidden mb-3 suc-box"></div>
+                    <div class="flex gap-3">
+                        <button onclick="comBack(3)" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-bold uppercase text-sm hover:bg-slate-200 transition-all">← Back</button>
+                        <button onclick="submitCommercial()" id="com-submit-btn" class="flex-[2] brand-orange-bg hover:bg-[#e85a20] text-white py-3.5 rounded-xl font-black italic uppercase transition-all nav-font shadow-sm">Create Account →</button>
+                    </div>
+                </div>
+
+            </div><!-- /commercial-steps -->
+
+        </div><!-- /signup-panel -->
+
+    </div><!-- /card -->
+
+    <p class="text-center text-slate-400 text-xs mt-6">
+        <a href="index.html" class="hover:text-orange-500 transition-colors">← Back to BookedByBoyle.com</a>
+    </p>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+const sb = initSupabase();
+
+// ── Global state ─────────────────────────────────────────────────
+let selectedRole = null;
+let ownershipType = null, cOwnershipType = null;
+let marketType = null, gbpAnswer = null;
+let selectedTrades = new Set();
+let rPropCount = 1, cPropCount = 1, comPropCount = 1;
+let propertyData = [], cPropertyData = [], comPropertyData = [];
+let coiFile = null;
+
+const TRADES = [
+    '🛡️ Roofers','❄️ HVAC','⚡ Electricians','🔧 Plumbers',
+    '🌳 Tree Service','☀️ Solar','🪟 Siding & Windows','🌿 Landscapers',
+    '🌧️ Gutters','🧱 Masonry','🧰 Remodeling','🎨 Painters',
+    '🪚 Decks & Fencing','🏊 Pool Service','🚗 Driveway & Paving'
+];
+
+const PROGRESS = {
+    contractor:  { steps:5, labels:['Personal Info','License & Insurance','Trades & Market','Your Home','Agreement'] },
+    residential: { steps:3, labels:['About You','Your Properties','Terms'] },
+    commercial:  { steps:3, labels:['Account Details','Your Properties','Terms'] },
+};
+
+// ── DOM helpers ──────────────────────────────────────────────────
+const show = id => document.getElementById(id)?.classList.remove('hidden');
+const hide = id => document.getElementById(id)?.classList.add('hidden');
+const val  = id => document.getElementById(id)?.value.trim() || '';
+function showErr(id, msg) { const e = document.getElementById(id); if(e){e.textContent=msg; e.classList.remove('hidden');} }
+function hideErr(id) { document.getElementById(id)?.classList.add('hidden'); }
+
+// ── Validation helpers ───────────────────────────────────────────
+function validEmail(e) {
+    return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(e);
+}
+function validPhone(p) {
+    const d = p.replace(/\D/,'');
+    // Allow empty result from replace to still be checked
+    const digits = p.replace(/\D/g,'');
+    return digits.length >= 7 && digits.length <= 15;
+}
+
+// Live email indicator
+function markEmailLive(input, msgId) {
+    const msg = document.getElementById(msgId);
+    if (!msg) return;
+    if (!validEmail(input.value.trim())) {
+        msg.classList.remove('hidden');
+        input.classList.add('invalid');
+    } else {
+        msg.classList.add('hidden');
+        input.classList.remove('invalid');
+    }
+}
+
+// Phone auto-format to (xxx) xxx-xxxx
+function fmtPhone(input) {
+    let d = input.value.replace(/\D/g,'').substring(0,10);
+    if (d.length >= 7) d = `(${d.substring(0,3)}) ${d.substring(3,6)}-${d.substring(6)}`;
+    else if (d.length >= 4) d = `(${d.substring(0,3)}) ${d.substring(3)}`;
+    else if (d.length > 0) d = `(${d}`;
+    input.value = d;
+}
+
+// Password requirements live check
+function validatePW(pw) {
+    return {
+        len: pw.length >= 8,
+        cap: /[A-Z]/.test(pw),
+        num: /[0-9]/.test(pw),
+        sym: /[!?*@#$%^&+=\-_]/.test(pw),
+    };
+}
+function checkPW(inputId, reqsId) {
+    const pw  = document.getElementById(inputId)?.value || '';
+    const chk = validatePW(pw);
+    const prefix = reqsId; // e.g. "c-pw"
+    const map = { len:`${prefix}-len`, cap:`${prefix}-cap`, num:`${prefix}-num`, sym:`${prefix}-sym` };
+    Object.entries(chk).forEach(([k,v]) => document.getElementById(map[k])?.classList.toggle('met',v));
+}
+function pwOk(pw) {
+    const c = validatePW(pw);
+    return c.len && c.cap && c.num && c.sym;
+}
+
+// Confirm password match
+function checkConfirm(pw1Id, pw2Id, msgId) {
+    const msg = document.getElementById(msgId);
+    if (!msg) return;
+    const p1 = document.getElementById(pw1Id)?.value || '';
+    const p2 = document.getElementById(pw2Id)?.value || '';
+    if (!p2) { msg.classList.add('hidden'); return; }
+    if (p1 === p2) {
+        msg.textContent = '✅ Passwords match';
+        msg.className = 'text-xs mb-3 text-green-600';
+        msg.classList.remove('hidden');
+    } else {
+        msg.textContent = '❌ Passwords do not match';
+        msg.className = 'text-xs mb-3 text-red-500';
+        msg.classList.remove('hidden');
+    }
+}
+
+// ── COI Upload ───────────────────────────────────────────────────
+function handleCOIUpload(input) {
+    coiFile = input.files[0] || null;
+    const label = document.getElementById('coi-file-label');
+    const area  = document.getElementById('coi-upload-area');
+    if (coiFile) {
+        label.textContent = `✅ ${coiFile.name}`;
+        label.classList.add('text-green-600');
+        area.classList.add('has-file');
+    } else {
+        label.textContent = 'Click to upload COI (PDF, JPG, PNG)';
+        label.classList.remove('text-green-600');
+        area.classList.remove('has-file');
+    }
+}
+async function uploadCOI(uid) {
+    if (!coiFile) return null;
+    const ext = coiFile.name.split('.').pop();
+    const path = `coi/${uid}_${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('contractor-docs').upload(path, coiFile);
+    if (error) { console.warn('COI upload failed:', error.message); return null; }
+    return path;
+}
+
+// ── Main mode toggle ─────────────────────────────────────────────
+function setMainMode(mode) {
+    ['login-panel','reset-panel','signup-panel'].forEach(p => hide(p));
+    show(mode === 'login' ? 'login-panel' : mode === 'reset' ? 'reset-panel' : 'signup-panel');
+    document.getElementById('tab-login').className  = `flex-1 py-2.5 rounded-xl text-sm font-black uppercase tracking-wide transition-all ${mode==='login'?'tab-active':'tab-inactive'}`;
+    document.getElementById('tab-signup').className = `flex-1 py-2.5 rounded-xl text-sm font-black uppercase tracking-wide transition-all ${mode==='signup'?'tab-active':'tab-inactive'}`;
+    if (mode === 'signup') resetSignup();
+}
+function showReset() { setMainMode('reset'); }
+
+function resetSignup() {
+    hide('contractor-steps'); hide('residential-steps'); hide('commercial-steps'); hide('progress-wrap');
+    show('signup-step-0');
+    ['contractor','residential','commercial'].forEach(r => document.getElementById(`role-btn-${r}`)?.classList.remove('selected'));
+}
+
+// ── Role choice ──────────────────────────────────────────────────
+function chooseRole(role) {
+    selectedRole = role;
+    ['contractor','residential','commercial'].forEach(r => document.getElementById(`role-btn-${r}`)?.classList.toggle('selected', r===role));
+    setTimeout(() => {
+        hide('signup-step-0'); show('progress-wrap');
+        if (role === 'contractor')  { show('contractor-steps');  showCStep(1); }
+        else if (role === 'residential') { show('residential-steps'); showRStep(1); }
+        else { show('commercial-steps'); showComStep(1); }
+    }, 180);
+}
+
+// ── Progress bar ─────────────────────────────────────────────────
+function updateProgress(role, step) {
+    const cfg = PROGRESS[role];
+    const pct = Math.round((step / cfg.steps) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-label').textContent = `Step ${step} of ${cfg.steps} — ${cfg.labels[step-1]}`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CONTRACTOR FLOW
+// ══════════════════════════════════════════════════════════════════
+function showCStep(n) {
+    [1,2,3,4,5].forEach(i => hide(`c-step-${i}`));
+    show(`c-step-${n}`);
+    updateProgress('contractor', n);
+    if (n === 3) buildTradeGrid();
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+function cBack(from) { showCStep(from - 1); }
+
+function cNext(from) {
+    hideErr(`c${from}-error`);
+    if (from === 1) {
+        if (!val('c-fname') || !val('c-lname')) return showErr('c1-error','Please enter your first and last name.');
+        if (!val('c-dob')) return showErr('c1-error','Date of birth is required.');
+        if (!val('c-bizname')) return showErr('c1-error','Please enter your business name.');
+        if (!validEmail(val('c-email'))) return showErr('c1-error','Please enter a valid email address (must include @ and a valid domain).');
+        if (!validPhone(val('c-phone'))) return showErr('c1-error','Please enter a valid phone number (7–15 digits).');
+        if (!pwOk(val('c-password'))) return showErr('c1-error','Password must be 8+ chars with uppercase, number, and special character.');
+        if (val('c-password') !== val('c-password2')) return showErr('c1-error','Passwords do not match.');
+        showCStep(2);
+    } else if (from === 2) {
+        if (!val('c-lic-type') || !val('c-lic-num')) return showErr('c2-error','License type and number are required.');
+        if (!val('c-lic-exp'))  return showErr('c2-error','License expiration date is required.');
+        if (!val('c-ins-provider') || !val('c-ins-policy')) return showErr('c2-error','Insurance provider and policy number are required.');
+        if (!val('c-ins-exp'))  return showErr('c2-error','Insurance expiration date is required.');
+        showCStep(3);
+    } else if (from === 3) {
+        if (selectedTrades.size === 0 && !val('c-other-trade')) return showErr('c3-error','Please select at least one trade.');
+        if (!marketType) return showErr('c3-error','Please select residential, commercial, or both.');
+        if (!gbpAnswer)  return showErr('c3-error','Please indicate whether you have a Google Business Profile.');
+        showCStep(4);
+    } else if (from === 4) {
+        if (!cOwnershipType) return showErr('c4-error','Please indicate whether you own or rent.');
+        if (cOwnershipType === 'own') {
+            const inputs = document.querySelectorAll('#c-property-fields .prop-address-input');
+            for (let inp of inputs) { if (!inp.value.trim()) return showErr('c4-error','Please fill in all property addresses.'); }
+            cPropertyData = [];
+            document.querySelectorAll('#c-property-fields .prop-entry').forEach(entry => {
+                cPropertyData.push({ type: entry.querySelector('.prop-type-hidden').value, address: entry.querySelector('.prop-address-input').value.trim() });
+            });
+        }
+        showCStep(5);
+    }
+}
+
+function buildTradeGrid() {
+    const grid = document.getElementById('trade-grid');
+    if (grid.children.length) return;
+    TRADES.forEach(trade => {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.textContent = trade;
+        btn.className = 'trade-btn' + (selectedTrades.has(trade) ? ' selected' : '');
+        btn.onclick = () => {
+            if (selectedTrades.has(trade)) { selectedTrades.delete(trade); btn.classList.remove('selected'); }
+            else { selectedTrades.add(trade); btn.classList.add('selected'); }
+        };
+        grid.appendChild(btn);
+    });
+}
+
+function toggleMarket(v) {
+    marketType = v;
+    const map = { residential:'res', commercial:'com', both:'both' };
+    Object.keys(map).forEach(k => document.getElementById(`market-${map[k]}`)?.classList.toggle('selected', k===v));
+}
+function toggleGBP(v) {
+    gbpAnswer = v;
+    ['yes','no'].forEach(k => document.getElementById(`gbp-${k}`)?.classList.toggle('selected', k===v));
+}
+
+function setCOwnership(type) {
+    cOwnershipType = type;
+    document.getElementById('c-own-btn')?.classList.toggle('selected', type==='own');
+    document.getElementById('c-rent-btn')?.classList.toggle('selected', type==='rent');
+    document.getElementById('c-owner-extra')?.classList.toggle('hidden', type!=='own');
+    document.getElementById('c-renter-notice')?.classList.toggle('hidden', type!=='rent');
+    if (type === 'own') buildPropertyFieldsFor('c-property-fields', cPropCount);
+    else document.getElementById('c-property-fields').innerHTML = '';
+}
+
+async function submitContractor() {
+    hideErr('c5-error');
+    if (!document.getElementById('c-terms-check').checked)  return showErr('c5-error','You must agree to the Contractor Partnership Agreement.');
+    if (!document.getElementById('c-verify-check').checked) return showErr('c5-error','You must consent to license and insurance verification.');
+    const btn = document.getElementById('c-submit-btn');
+    btn.textContent = 'Submitting…'; btn.disabled = true;
+
+    const { data, error } = await sb.auth.signUp({ email: val('c-email'), password: val('c-password') });
+    if (error) { showErr('c5-error', error.message); btn.textContent = 'Submit Application →'; btn.disabled = false; return; }
+
+    const uid = data.user?.id;
+    const allTrades = [...selectedTrades, ...(val('c-other-trade') ? [val('c-other-trade')] : [])];
+
+    // Upload COI if provided
+    const coiPath = await uploadCOI(uid);
+
+    await sb.from('profiles').insert({
+        id: uid, email: val('c-email'),
+        full_name: val('c-fname') + ' ' + val('c-lname'),
+        role: 'contractor', phone: val('c-phone')
+    });
+    await sb.from('contractors').insert({
+        id: uid, business_name: val('c-bizname'), trade: allTrades.join(', '),
+        service_area: val('c-bizloc'), license_number: val('c-lic-num'),
+        license_expiry: val('c-lic-exp') || null,
+        insurance_provider: val('c-ins-provider'),
+        insurance_expiry: val('c-ins-exp') || null,
+        market: marketType,
+        google_business: gbpAnswer === 'yes' ? 'yes' : 'no',
+        approved: false, verified: false,
+        // Store COI path and extra fields as metadata
+        website: coiPath ? `coi:${coiPath}` : null
+    });
+
+    document.getElementById('c5-success').textContent = '✅ Application submitted! Check your email to confirm your account. We\'ll verify your credentials and be in touch within 48 hours.';
+    show('c5-success');
+    btn.textContent = '✅ Submitted';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  RESIDENTIAL FLOW
+// ══════════════════════════════════════════════════════════════════
+function showRStep(n) {
+    [1,2,3].forEach(i => hide(`r-step-${i}`));
+    if (n === 2 && ownershipType === 'rent') { showRStep(3); return; }
+    show(`r-step-${n}`);
+    updateProgress('residential', n);
+    if (n === 2) buildPropertyFieldsFor('property-fields', rPropCount);
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+function rBack(from) {
+    if (from === 2) showRStep(1);
+    else if (from === 3) { if (ownershipType === 'rent') showRStep(1); else showRStep(2); }
+}
+function rNext(from) {
+    hideErr(`r${from}-error`);
+    if (from === 1) {
+        if (!val('r-fname') || !val('r-lname')) return showErr('r1-error','Please enter your first and last name.');
+        if (!val('r-dob')) return showErr('r1-error','Date of birth is required.');
+        if (!validEmail(val('r-email'))) return showErr('r1-error','Please enter a valid email address (must include @ and a valid domain).');
+        if (!validPhone(val('r-phone'))) return showErr('r1-error','Please enter a valid phone number.');
+        if (!pwOk(val('r-password'))) return showErr('r1-error','Password must be 8+ chars with uppercase, number, and special character.');
+        if (val('r-password') !== val('r-password2')) return showErr('r1-error','Passwords do not match.');
+        if (!ownershipType) return showErr('r1-error','Please select whether you own or rent.');
+        if (ownershipType === 'own') rPropCount = Math.max(1, parseInt(val('r-prop-count')) || 1);
+        showRStep(2);
+    } else if (from === 2) {
+        const inputs = document.querySelectorAll('#property-fields .prop-address-input');
+        for (let inp of inputs) { if (!inp.value.trim()) return showErr('r2-error','Please fill in all property addresses.'); }
+        propertyData = [];
+        document.querySelectorAll('#property-fields .prop-entry').forEach(entry => {
+            propertyData.push({ type: entry.querySelector('.prop-type-hidden').value, address: entry.querySelector('.prop-address-input').value.trim() });
+        });
+        showRStep(3);
+    }
+}
+
+function setOwnership(type) {
+    ownershipType = type;
+    document.getElementById('own-btn')?.classList.toggle('selected', type==='own');
+    document.getElementById('rent-btn')?.classList.toggle('selected', type==='rent');
+    document.getElementById('owner-extra')?.classList.toggle('hidden', type!=='own');
+    document.getElementById('renter-notice')?.classList.toggle('hidden', type!=='rent');
+}
+
+async function submitResidential() {
+    hideErr('r3-error');
+    if (!document.getElementById('r-terms-check').checked) return showErr('r3-error','You must agree to the Terms of Use to continue.');
+    const btn = document.getElementById('r-submit-btn');
+    btn.textContent = 'Creating Account…'; btn.disabled = true;
+
+    const { data, error } = await sb.auth.signUp({ email: val('r-email'), password: val('r-password') });
+    if (error) { showErr('r3-error', error.message); btn.textContent = 'Create Account →'; btn.disabled = false; return; }
+
+    const uid = data.user?.id;
+    await sb.from('profiles').insert({
+        id: uid, email: val('r-email'),
+        full_name: val('r-fname') + ' ' + val('r-lname'),
+        role: 'residential', phone: val('r-phone'),
+        company: propertyData.length ? JSON.stringify(propertyData) : null
+    });
+
+    const ref = val('r-referral');
+    if (ref) await sb.from('referrals').insert({ referral_code: ref, referred_user_id: uid, status: 'pending' });
+
+    document.getElementById('r3-success').textContent = '✅ Account created! Check your email to confirm — you must verify before signing in.';
+    show('r3-success');
+    btn.textContent = '✅ Account Created!';
+    setTimeout(() => { window.location.href = 'owner-dashboard.html'; }, 3000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  COMMERCIAL FLOW
+// ══════════════════════════════════════════════════════════════════
+function showComStep(n) {
+    [1,2,3].forEach(i => hide(`com-step-${i}`));
+    show(`com-step-${n}`);
+    updateProgress('commercial', n);
+    if (n === 2) buildPropertyFieldsFor('com-property-fields', comPropCount, true);
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+function comBack(from) { showComStep(from - 1); }
+function comNext(from) {
+    hideErr(`com${from}-error`);
+    if (from === 1) {
+        if (!val('com-fname') || !val('com-lname')) return showErr('com1-error','Please enter your first and last name.');
+        if (!val('com-dob')) return showErr('com1-error','Date of birth is required.');
+        if (!validEmail(val('com-email'))) return showErr('com1-error','Please enter a valid email address.');
+        if (!validPhone(val('com-phone'))) return showErr('com1-error','Please enter a valid phone number.');
+        if (!pwOk(val('com-password'))) return showErr('com1-error','Password must be 8+ chars with uppercase, number, and special character.');
+        if (val('com-password') !== val('com-password2')) return showErr('com1-error','Passwords do not match.');
+        comPropCount = Math.max(1, parseInt(val('com-prop-count')) || 1);
+        showComStep(2);
+    } else if (from === 2) {
+        const inputs = document.querySelectorAll('#com-property-fields .prop-address-input');
+        for (let inp of inputs) { if (!inp.value.trim()) return showErr('com2-error','Please fill in all property addresses, or remove extras.'); }
+        comPropertyData = [];
+        document.querySelectorAll('#com-property-fields .prop-entry').forEach(entry => {
+            comPropertyData.push({ type: entry.querySelector('.prop-type-hidden').value, address: entry.querySelector('.prop-address-input').value.trim() });
+        });
+        showComStep(3);
+    }
+}
+
+async function submitCommercial() {
+    hideErr('com3-error');
+    if (!document.getElementById('com-terms-check').checked) return showErr('com3-error','You must agree to the Terms of Use to continue.');
+    const btn = document.getElementById('com-submit-btn');
+    btn.textContent = 'Creating Account…'; btn.disabled = true;
+
+    const { data, error } = await sb.auth.signUp({ email: val('com-email'), password: val('com-password') });
+    if (error) { showErr('com3-error', error.message); btn.textContent = 'Create Account →'; btn.disabled = false; return; }
+
+    const uid = data.user?.id;
+    await sb.from('profiles').insert({
+        id: uid, email: val('com-email'),
+        full_name: val('com-fname') + ' ' + val('com-lname'),
+        role: 'commercial', phone: val('com-phone'), company: val('com-company')
+    });
+
+    // Save properties
+    if (comPropertyData.length) {
+        const rows = comPropertyData.map(p => ({
+            owner_id: uid, property_type: 'commercial',
+            town: p.address, status: 'submitted',
+            description: `Type: ${p.type}`
+        }));
+        await sb.from('owner_requests').insert(rows);
+    }
+
+    document.getElementById('com3-success').textContent = '✅ Account created! Check your email to confirm — you must verify before signing in.';
+    show('com3-success');
+    btn.textContent = '✅ Account Created!';
+    setTimeout(() => { window.location.href = 'owner-dashboard.html'; }, 3000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SHARED: Property field builder + Address autocomplete
+// ══════════════════════════════════════════════════════════════════
+const PROP_TYPES_RES = [
+    { val:'house', label:'🏠 House' }, { val:'apartment', label:'🏢 Apt' },
+    { val:'condo',  label:'🏬 Condo' }, { val:'other', label:'📦 Other' }
+];
+const PROP_TYPES_COM = [
+    { val:'warehouse',  label:'🏭 Warehouse' }, { val:'retail', label:'🏪 Retail' },
+    { val:'office',     label:'🏢 Office' },    { val:'multifamily', label:'🏘️ Multi-Family' },
+    { val:'mixeduse',   label:'🏙️ Mixed-Use' }, { val:'other', label:'📦 Other' }
+];
+
+function buildPropertyFieldsFor(containerId, count, isCommercial = false) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    const types = isCommercial ? PROP_TYPES_COM : PROP_TYPES_RES;
+    const cap = Math.min(count, isCommercial ? 20 : 10); // safety cap for UI
+    for (let i = 0; i < cap; i++) {
+        const div = document.createElement('div');
+        div.className = 'prop-entry mb-5 pb-5 border-b border-slate-100 last:border-0 last:mb-0 last:pb-0';
+        const typeButtons = types.map((t,ti) =>
+            `<button type="button" class="toggle-btn prop-type-btn-opt${ti===0?' selected':''}" onclick="selectPropType(this,'${t.val}')" style="flex:none;padding:0.55rem 0.6rem;font-size:0.65rem;">${t.label}</button>`
+        ).join('');
+        div.innerHTML = `
+            <p class="text-slate-500 font-black text-xs uppercase tracking-widest mb-3">${cap>1?`Property ${i+1}`:'Property Address'}</p>
+            <div class="mb-3">
+                <label class="field-label">Property Type</label>
+                <div class="flex flex-wrap gap-1.5">${typeButtons}</div>
+                <input type="hidden" class="prop-type-hidden" value="${types[0].val}">
+            </div>
+            <div class="relative">
+                <label class="field-label">Street Address</label>
+                <input type="text" class="field-input prop-address-input" placeholder="Start typing your address…" autocomplete="off"
+                    oninput="addressAC(this)" onblur="setTimeout(()=>closeAC(this),200)">
+                <div class="autocomplete-list hidden"></div>
+            </div>`;
+        container.appendChild(div);
+    }
+    if (count > cap) {
+        container.innerHTML += `<p class="text-xs text-slate-400 mt-2">Showing ${cap} of ${count}. Add remaining properties from your dashboard after signup.</p>`;
+    }
+}
+
+function selectPropType(btn, v) {
+    const entry = btn.closest('.prop-entry');
+    entry.querySelectorAll('.prop-type-btn-opt').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    entry.querySelector('.prop-type-hidden').value = v;
+}
+
+// Address autocomplete via Nominatim (OpenStreetMap, no API key needed)
+const acTimers = new WeakMap();
+function addressAC(input) {
+    const list = input.nextElementSibling;
+    const q = input.value.trim();
+    if (q.length < 5) { list.classList.add('hidden'); list.innerHTML = ''; return; }
+    clearTimeout(acTimers.get(input));
+    acTimers.set(input, setTimeout(async () => {
+        try {
+            const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=5&countrycodes=us`);
+            const data = await r.json();
+            list.innerHTML = '';
+            if (!data.length) { list.classList.add('hidden'); return; }
+            data.forEach(item => {
+                const d = document.createElement('div');
+                d.className = 'autocomplete-item';
+                const a = item.address;
+                const street = [a.house_number, a.road].filter(Boolean).join(' ');
+                const city   = a.city || a.town || a.village || a.county || '';
+                const state  = a.state_code || a.state || '';
+                const zip    = a.postcode || '';
+                const clean  = [street, city, state, zip].filter(Boolean).join(', ') || item.display_name;
+                d.textContent = clean;
+                d.onclick = () => { input.value = clean; list.classList.add('hidden'); list.innerHTML = ''; };
+                list.appendChild(d);
+            });
+            list.classList.remove('hidden');
+        } catch { list.classList.add('hidden'); }
+    }, 380));
+}
+function closeAC(input) { input.nextElementSibling?.classList.add('hidden'); }
+
+// Handle C4 property count change
+document.addEventListener('input', e => {
+    if (e.target.id === 'c-prop-count') {
+        cPropCount = Math.max(1, parseInt(e.target.value) || 1);
+        if (cOwnershipType === 'own') buildPropertyFieldsFor('c-property-fields', cPropCount);
+    }
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  LOGIN & RESET
+// ══════════════════════════════════════════════════════════════════
+async function handleLogin() {
+    const errEl = document.getElementById('login-error');
+    errEl.classList.add('hidden');
+    const emailVal = document.getElementById('login-email').value.trim();
+    if (!validEmail(emailVal)) {
+        errEl.textContent = 'Please enter a valid email address.';
+        errEl.classList.remove('hidden');
+        return;
+    }
+    const { data, error } = await sb.auth.signInWithPassword({
+        email: emailVal,
+        password: document.getElementById('login-password').value
+    });
+    if (error) { errEl.textContent = error.message; errEl.classList.remove('hidden'); return; }
+    const { data: profile } = await sb.from('profiles').select('role').eq('id', data.user.id).single();
+    const role = profile?.role;
+    if (role === 'contractor') window.location.href = 'contractor-dashboard.html';
+    else if (role === 'admin') window.location.href = 'admin-dashboard.html';
+    else window.location.href = 'owner-dashboard.html';
+}
+
+async function handleReset() {
+    const emailVal = document.getElementById('reset-email').value.trim();
+    if (!validEmail(emailVal)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+    await sb.auth.resetPasswordForEmail(emailVal, { redirectTo: window.location.origin + '/login.html' });
+    document.getElementById('reset-msg').classList.remove('hidden');
+}
+
+// Auto-redirect if already logged in
+sb.auth.getSession().then(({ data: { session } }) => {
+    if (!session) return;
+    sb.from('profiles').select('role').eq('id', session.user.id).single().then(({ data }) => {
+        if (data?.role === 'contractor') window.location.href = 'contractor-dashboard.html';
+        else if (data?.role === 'admin') window.location.href = 'admin-dashboard.html';
+        else window.location.href = 'owner-dashboard.html';
+    });
+});
+</script>
+</body>
+</html>
