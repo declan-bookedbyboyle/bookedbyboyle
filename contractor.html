@@ -152,26 +152,38 @@ header {
     </header>
     
 <!-- $100 CREDIT TEASER BANNER -->
-<div class="bg-[#0f172a] py-4 px-6">
-  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+<div class="bg-[#0f172a] py-5 px-6 border-b-2 border-orange-500/40">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+    
+    <!-- Left: Message -->
     <div class="flex items-center gap-4">
       <span class="text-white text-3xl font-black italic leading-none">🎉</span>
       <div>
-        <p class="text-orange-500 font-black uppercase text-sm tracking-widest leading-tight">
-          Founding Member Offer
+        <p class="text-orange-500 font-black uppercase text-lg tracking-widest leading-tight mb-1">
+          New Member Offer
         </p>
-        <p class="text-white text-sm leading-snug">
-          Join now and get <strong class="text-orange-300">$100 credit toward your first booking</strong> — your first job is virtually on us.
-          <span id="teaser-spots" class="font-black ml-1 text-orange-400">25 spots remaining.</span>
+        <p class="text-white text-m leading-snug">
+          Join now and get <strong class="text-orange-300">$100 credit toward your bookings</strong> — your first job could be on us.
         </p>
       </div>
     </div>
+
+    <!-- Center: Spot Countdown -->
+    <div class="flex flex-col items-center gap-0 flex-shrink-0 px-6">
+      <div id="teaser-spots-number" class="text-3xl font-black italic text-orange-400 leading-none tabular-nums">25</div>
+      <p class="text-white font-black uppercase text-xs tracking-widest mt-1">Spots Remaining</p>
+      <div class="w-full bg-slate-700 rounded-full h-1.5 mt-2 min-w-[120px]">
+        <div id="teaser-progress-bar" class="bg-orange-500 h-1 rounded-full transition-all duration-700" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- Right: CTA -->
     <div class="flex flex-col items-center gap-1 flex-shrink-0">
       <a href="#joining-credit" class="bg-orange-500 text-white font-black uppercase text-sm tracking-widest px-6 py-3 rounded-xl hover:bg-orange-400 transition-all shadow-md whitespace-nowrap">
-        Claim Your Spot ↓
+        Claim Your $100 ↓
       </a>
-      <p id="teaser-sub" class="text-slate-400 text-xs font-bold uppercase tracking-widest">Spots filling fast</p>
     </div>
+
   </div>
 </div>
 
@@ -192,30 +204,51 @@ header {
     if (error) return;
 
     const spotsLeft = Math.max(WAVE1_TOTAL - (count || 0), 0);
-    const el = document.getElementById('teaser-spots');
-    const sub = document.getElementById('teaser-sub');
-    if (!el) return;
+    const numEl  = document.getElementById('teaser-spots-number');
+    const barEl  = document.getElementById('teaser-progress-bar');
+    const subEl  = document.getElementById('teaser-sub');
+    if (!numEl) return;
 
-    if (spotsLeft === 0) {
-      el.textContent = 'This offer has closed.';
-      el.classList.replace('text-orange-400', 'text-slate-400');
-      if (sub) sub.textContent = 'Check back for future offers';
-    } else if (spotsLeft === 1) {
-      el.textContent = '⚡ Only 1 spot left!';
-      el.classList.replace('text-orange-400', 'text-red-400');
-      if (sub) sub.textContent = '1 spot remaining — act now';
-    } else if (spotsLeft <= 5) {
-      el.textContent = `⚡ Only ${spotsLeft} spots left!`;
-      el.classList.replace('text-orange-400', 'text-red-400');
-      if (sub) sub.textContent = `${spotsLeft} spots remaining — act now`;
-    } else if (spotsLeft <= 10) {
-      el.textContent = `${spotsLeft} spots remaining — filling fast.`;
-      el.classList.replace('text-orange-400', 'text-yellow-400');
-      if (sub) sub.textContent = `${spotsLeft} spots left`;
-    } else {
-      el.textContent = `${spotsLeft} spots remaining.`;
-      if (sub) sub.textContent = 'Spots filling fast';
+    // Update number
+    numEl.textContent = spotsLeft === 0 ? '0' : spotsLeft;
+
+    // Update progress bar width and color
+    const pct = (spotsLeft / WAVE1_TOTAL) * 100;
+    if (barEl) {
+      barEl.style.width = pct + '%';
+      if (spotsLeft <= 5) {
+        barEl.classList.replace('bg-orange-500', 'bg-red-500');
+        numEl.classList.replace('text-orange-400', 'text-red-400');
+      } else if (spotsLeft <= 10) {
+        barEl.classList.replace('bg-orange-500', 'bg-yellow-400');
+        numEl.classList.replace('text-orange-400', 'text-yellow-400');
+      }
     }
+
+    // Update number size for urgency at low counts
+    if (spotsLeft <= 5) {
+      numEl.classList.replace('text-5xl', 'text-6xl');
+    }
+
+    // Update sub text
+    if (subEl) {
+      if (spotsLeft === 0) {
+        subEl.textContent = 'This offer has closed';
+        subEl.classList.replace('text-slate-400', 'text-slate-500');
+      } else if (spotsLeft === 1) {
+        subEl.textContent = '⚡ Last spot — act now';
+        subEl.classList.replace('text-slate-400', 'text-red-400');
+      } else if (spotsLeft <= 5) {
+        subEl.textContent = `⚡ Almost gone — act now`;
+        subEl.classList.replace('text-slate-400', 'text-red-400');
+      } else if (spotsLeft <= 10) {
+        subEl.textContent = `Filling fast — don't wait`;
+        subEl.classList.replace('text-slate-400', 'text-yellow-400');
+      } else {
+        subEl.textContent = 'Spots filling fast';
+      }
+    }
+
   } catch (err) {
     console.warn('Spot counter failed silently:', err);
   }
