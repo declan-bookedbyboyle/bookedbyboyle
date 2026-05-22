@@ -20,7 +20,7 @@ const NAV = {
 
 // ============================================================
 // REFERRAL CREDITS
-// Unified to $100 flat across all trades.
+// Unified to $50 flat across all trades.
 // ============================================================
 const REFERRAL_CREDITS = {
   high: { label: '$50 off next booking', amount: 50, fullWaiver: false },
